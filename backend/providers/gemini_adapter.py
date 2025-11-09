@@ -6,9 +6,13 @@ import asyncio
 
 class GeminiAdapter:
     name = "gemini"
-    
+
     def __init__(self):
-        genai.configure(api_key=settings.google_api_key)
+        if settings.google_api_key:
+            genai.configure(api_key=settings.google_api_key)
+            self.configured = True
+        else:
+            self.configured = False
     
     async def stream_complete(
         self,
@@ -18,6 +22,9 @@ class GeminiAdapter:
         temperature: float = 0.7
     ) -> AsyncIterator[str]:
         """Stream Gemini response."""
+        if not self.configured:
+            raise Exception("Google API key not configured")
+
         try:
             # Convert messages to Gemini format
             chat_messages = []
@@ -61,6 +68,8 @@ class GeminiAdapter:
     
     async def health_check(self) -> bool:
         """Check if Gemini is available."""
+        if not self.configured:
+            return False
         try:
             models = genai.list_models()
             return True

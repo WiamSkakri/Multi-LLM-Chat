@@ -1,7 +1,9 @@
 """Database setup and connection management."""
-import aiosqlite
 import os
+from contextlib import asynccontextmanager
 from typing import Optional
+
+import aiosqlite
 
 DB_PATH = os.getenv("DB_PATH", "chat.db")
 MAX_CONNECTIONS = 5
@@ -70,6 +72,11 @@ async def init_db():
         await db.commit()
 
 
+@asynccontextmanager
 async def get_db():
-    """Get database connection."""
-    return await aiosqlite.connect(DB_PATH)
+    """Async context manager that yields a DB connection."""
+    connection = await aiosqlite.connect(DB_PATH)
+    try:
+        yield connection
+    finally:
+        await connection.close()

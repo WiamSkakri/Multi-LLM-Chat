@@ -19,10 +19,10 @@ interface MessageListProps {
 }
 
 const MODEL_COLORS: Record<string, string> = {
-  gpt: 'border-l-4 border-gpt-blue',
-  claude: 'border-l-4 border-claude-purple',
-  gemini: 'border-l-4 border-gemini-green',
-  local: 'border-l-4 border-local-orange',
+  gpt: 'border-l-4 border-black dark:border-white',
+  claude: 'border-l-4 border-black dark:border-white',
+  gemini: 'border-l-4 border-black dark:border-white',
+  local: 'border-l-4 border-black dark:border-white',
 }
 
 const MODEL_NAMES: Record<string, string> = {
@@ -53,7 +53,7 @@ export default function MessageList({ messages, providerStatus }: MessageListPro
         }
 
         const model = message.model || 'unknown'
-        const colorClass = MODEL_COLORS[model] || 'border-l-4 border-gray-300'
+        const colorClass = MODEL_COLORS[model] || 'border-l-4 border-black dark:border-white'
         const modelName = MODEL_NAMES[model] || model
 
         return (
@@ -83,4 +83,3 @@ export default function MessageList({ messages, providerStatus }: MessageListPro
     </div>
   )
 }
-

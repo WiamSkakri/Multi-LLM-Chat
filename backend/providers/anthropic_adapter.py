@@ -5,9 +5,12 @@ from config import settings
 
 class AnthropicAdapter:
     name = "anthropic"
-    
+
     def __init__(self):
-        self.client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
+        if settings.anthropic_api_key:
+            self.client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
+        else:
+            self.client = None
     
     async def stream_complete(
         self,
@@ -17,24 +20,36 @@ class AnthropicAdapter:
         temperature: float = 0.7
     ) -> AsyncIterator[str]:
         """Stream Anthropic response."""
+        if not self.client:
+            raise Exception("Anthropic API key not configured")
+
         try:
             # Anthropic uses system/user/assistant format
-            system_message = None
+            system_messages = []
             conversation = []
-            
+
             for msg in messages:
                 if msg["role"] == "system":
-                    system_message = msg["content"]
+                    system_messages.append({
+                        "type": "text",
+                        "text": msg["content"]
+                    })
                 else:
                     conversation.append(msg)
-            
-            async with self.client.messages.stream(
-                model=model,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                system=system_message,
-                messages=conversation
-            ) as stream:
+
+            # Build kwargs for the API call
+            kwargs = {
+                "model": model,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+                "messages": conversation
+            }
+
+            # Only include system if we have system messages
+            if system_messages:
+                kwargs["system"] = system_messages
+
+            async with self.client.messages.stream(**kwargs) as stream:
                 async for text in stream.text_stream:
                     yield text
         except Exception as e:
@@ -48,6 +63,8 @@ class AnthropicAdapter:
     
     async def health_check(self) -> bool:
         """Check if Anthropic is available."""
+        if not self.client:
+            return False
         try:
             # Simple health check
             return True

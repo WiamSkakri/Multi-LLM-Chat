@@ -6,9 +6,13 @@ from config import settings
 
 class OpenAIAdapter:
     name = "openai"
-    
+
     def __init__(self):
-        self.client = openai.AsyncOpenAI(api_key=settings.openai_api_key)
+        # Only initialize if API key is provided
+        if settings.openai_api_key:
+            self.client = openai.AsyncOpenAI(api_key=settings.openai_api_key)
+        else:
+            self.client = None
     
     async def stream_complete(
         self,
@@ -18,6 +22,9 @@ class OpenAIAdapter:
         temperature: float = 0.7
     ) -> AsyncIterator[str]:
         """Stream OpenAI response."""
+        if not self.client:
+            raise Exception("OpenAI API key not configured")
+
         try:
             stream = await self.client.chat.completions.create(
                 model=model,
@@ -26,7 +33,7 @@ class OpenAIAdapter:
                 temperature=temperature,
                 stream=True
             )
-            
+
             async for chunk in stream:
                 if chunk.choices[0].delta.content:
                     yield chunk.choices[0].delta.content
@@ -45,6 +52,8 @@ class OpenAIAdapter:
     
     async def health_check(self) -> bool:
         """Check if OpenAI is available."""
+        if not self.client:
+            return False
         try:
             await self.client.models.list()
             return True

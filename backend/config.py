@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     
     # Model Defaults
     default_gpt_model: str = "gpt-4o-mini"
-    default_claude_model: str = "claude-3-5-sonnet-20241022"
+    default_claude_model: str = "claude-haiku-4-5-20251001"
     default_gemini_model: str = "gemini-2.0-flash-exp"
     default_local_model: str = "llama3"
     

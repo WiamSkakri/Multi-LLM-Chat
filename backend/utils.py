@@ -46,7 +46,9 @@ def calculate_cost(provider: str, model: str, prompt_tokens: int, completion_tok
             "default": {"input": 0.15, "output": 0.60}
         },
         "anthropic": {
-            "claude-3-5-sonnet-20241022": {"input": 3.00, "output": 15.00},
+            "claude-haiku-4-5-20251001": {"input": 1.00, "output": 5.00},
+            "claude-3-7-sonnet-20250219": {"input": 3.00, "output": 15.00},
+            "claude-sonnet-4-5-20250929": {"input": 3.00, "output": 15.00},
             "default": {"input": 3.00, "output": 15.00}
         },
         "gemini": {

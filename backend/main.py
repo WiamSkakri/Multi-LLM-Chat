@@ -8,6 +8,7 @@ from slowapi.errors import RateLimitExceeded
 import json
 import time
 import asyncio
+import logging
 from typing import List, Dict
 import aiosqlite
 
@@ -18,6 +19,8 @@ from utils import (
     parse_mentions, is_critique, parse_critique_target,
     generate_id, calculate_cost, format_messages_for_provider
 )
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -192,6 +195,7 @@ async def websocket_endpoint(websocket: WebSocket):
             # Max attempts reached, client should show reconnect button
             pass
     except Exception as e:
+        logger.exception("WebSocket handler error: %s", e)
         await websocket.send_json({
             "type": "error",
             "message": f"Server error: {str(e)}"
@@ -396,13 +400,21 @@ async def process_model_request(
     
     try:
         timeout = getattr(settings, f"{provider_name}_timeout", 60)
-        async for chunk in asyncio.wait_for(
-            provider.stream_complete(formatted_messages, model_name),
-            timeout=timeout
-        ):
+        stream = provider.stream_complete(formatted_messages, model_name)
+
+        # Wrap streaming with timeout using asyncio.wait_for on each chunk
+        async def stream_with_timeout():
+            async for chunk in stream:
+                yield chunk
+
+        end_time = time.time() + timeout
+        async for chunk in stream:
+            if time.time() > end_time:
+                raise asyncio.TimeoutError()
+
             full_response += chunk
             completion_tokens = provider.count_tokens(full_response)
-            
+
             await websocket.send_json({
                 "type": "chunk",
                 "message_id": response_id,
@@ -416,6 +428,10 @@ async def process_model_request(
         })
     except Exception as e:
         is_complete = False
+        logger.warning(
+            "Provider %s (%s) failed for thread %s: %s",
+            provider_name, mention, thread_id, e, exc_info=True
+        )
         await websocket.send_json({
             "type": "error",
             "message": f"[@{mention} unavailable] Try another model or @local instead?"
@@ -453,4 +469,3 @@ async def process_model_request(
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-

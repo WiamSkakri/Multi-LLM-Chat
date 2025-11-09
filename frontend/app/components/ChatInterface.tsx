@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import MessageList from './MessageList'
 import MessageInput from './MessageInput'
 import { useWebSocket } from '../hooks/useWebSocket'
@@ -115,27 +115,60 @@ export default function ChatInterface() {
     })
   }, [ws, connected, threadId, sendMessage])
 
+  if (messages.length === 0) {
+    // Initial centered state - no messages
+    return (
+      <div className="h-full flex flex-col items-center justify-center">
+        <div className="w-full max-w-4xl mx-auto px-6">
+          <header className="mb-8 text-center">
+            <h1 className="text-xl text-black dark:text-white">
+              Ask multiple LLMs your question and compare
+            </h1>
+          </header>
+          <MessageInput onSend={handleSend} providerStatus={providerStatus} />
+          {!connected && (
+            <div className="flex items-center justify-center gap-2 mt-3 text-xs">
+              <div className="w-2 h-2 rounded-full bg-red-500" />
+              <span className="text-black dark:text-white">Disconnected</span>
+              <button
+                onClick={reconnect}
+                className="text-black dark:text-white underline hover:no-underline"
+              >
+                Reconnect
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // Chat mode - messages exist, sticky input at bottom
   return (
-    <div className="w-full flex flex-col">
-      {messages.length > 0 && (
-        <div className="mb-8 max-h-96 overflow-y-auto">
+    <>
+      <div className="pt-6 pb-24">
+        <div className="w-full max-w-4xl mx-auto px-6">
           <MessageList messages={messages} providerStatus={providerStatus} />
         </div>
-      )}
-      <MessageInput onSend={handleSend} providerStatus={providerStatus} />
-      {!connected && (
-        <div className="flex items-center justify-center gap-2 mt-3 text-xs">
-          <div className="w-2 h-2 rounded-full bg-red-500" />
-          <span className="text-black dark:text-white">Disconnected</span>
-          <button
-            onClick={reconnect}
-            className="text-black dark:text-white underline hover:no-underline"
-          >
-            Reconnect
-          </button>
+      </div>
+      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-black py-4">
+        <div className="w-full max-w-4xl mx-auto px-6">
+          {!connected && (
+            <div className="flex items-center justify-center gap-2 mb-3 text-xs">
+              <div className="w-2 h-2 rounded-full bg-red-500" />
+              <span className="text-black dark:text-white">Disconnected</span>
+              <button
+                onClick={reconnect}
+                className="text-black dark:text-white underline hover:no-underline"
+              >
+                Reconnect
+              </button>
+            </div>
+          )}
+          <MessageInput onSend={handleSend} providerStatus={providerStatus} />
         </div>
-      )}
-    </div>
+      </div>
+    </>
   )
 }
 
