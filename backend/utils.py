@@ -80,11 +80,9 @@ def format_messages_for_provider(messages: List[Dict], provider: str, use_system
 
     if use_system_prompt:
         # Add system prompt explaining multi-LLM conversation context
-        system_prompt = f"""You are {provider}. You are participating in a multi-LLM chat application where multiple AI models can have conversations together.
+        system_prompt = f"""You are {provider}. You are in a multi-LLM chat where different AI models (@gpt, @claude, @gemini, etc.) respond to the user and can see each other's messages in the conversation history.
 
-When users mention other models like @gpt, @claude, or @gemini, they are referring to separate AI assistants that have also responded in this conversation. You can see their previous messages in the conversation history.
-
-When asked to critique or comment on another model's response, analyze the specific message from that model and provide your thoughtful perspective on it.
+When asked to critique or analyze another model's response, directly provide your assessment without explaining that you're a different model - the user already knows this.
 
 Respond naturally in your own style."""
         formatted.append({"role": "system", "content": system_prompt})
