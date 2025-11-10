@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import ReactMarkdown from 'react-markdown'
 
 interface Message {
   id: string
@@ -46,7 +47,9 @@ export default function MessageList({ messages, providerStatus }: MessageListPro
           return (
             <div key={message.id} className="flex justify-start">
               <div className="border border-black dark:border-white rounded-lg px-4 py-2 max-w-2xl">
-                <p className="text-black dark:text-white whitespace-pre-wrap">{message.content}</p>
+                <div className="text-black dark:text-white prose prose-sm dark:prose-invert max-w-none">
+                  <ReactMarkdown>{message.content}</ReactMarkdown>
+                </div>
               </div>
             </div>
           )
@@ -65,9 +68,9 @@ export default function MessageList({ messages, providerStatus }: MessageListPro
                   <span className="text-xs text-black dark:text-white">...</span>
                 )}
               </div>
-              <p className="text-black dark:text-white whitespace-pre-wrap mb-2">
-                {message.content}
-              </p>
+              <div className="text-black dark:text-white prose prose-sm dark:prose-invert max-w-none mb-2">
+                <ReactMarkdown>{message.content}</ReactMarkdown>
+              </div>
               {!message.isStreaming && (message.tokens || message.latency_ms || message.cost_usd) && (
                 <div className="text-xs text-black dark:text-white mt-2 pt-2 border-t border-black dark:border-white">
                   {message.tokens && `${(message.tokens / 1000).toFixed(1)}k tokens`}
