@@ -1,0 +1,61 @@
+services:
+  # Backend FastAPI Service
+  - type: web
+    name: multi-llm-chat-backend
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r backend/requirements.txt"
+    startCommand: "cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: APP_PASSWORD
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: DEFAULT_GPT_MODEL
+        value: gpt-4o-mini
+      - key: DEFAULT_CLAUDE_MODEL
+        value: claude-haiku-4-5-20251001
+      - key: DEFAULT_GEMINI_MODEL
+        value: gemini-2.0-flash-exp
+      - key: USE_SYSTEM_PROMPT
+        value: false
+      - key: DAILY_COST_LIMIT
+        value: 5.00
+      - key: MAX_CONTEXT_MESSAGES
+        value: 20
+      - key: IP_RATE_LIMIT
+        value: 60
+      - key: MAX_INPUT_CHARS
+        value: 10000
+    healthCheckPath: /healthz
+
+  # Frontend Next.js Service
+  - type: web
+    name: multi-llm-chat-frontend
+    runtime: node
+    plan: free
+    buildCommand: "cd frontend && npm install && npm run build"
+    startCommand: "cd frontend && npm start"
+    envVars:
+      - key: NODE_VERSION
+        value: 20.0.0
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: multi-llm-chat-backend
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: NEXT_PUBLIC_HTTP_API_URL
+        fromService:
+          type: web
+          name: multi-llm-chat-backend
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: NEXT_PUBLIC_APP_PASSWORD
+        sync: false
