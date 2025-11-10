@@ -26,7 +26,7 @@ services:
       - key: DEFAULT_GEMINI_MODEL
         value: gemini-2.0-flash-exp
       - key: USE_SYSTEM_PROMPT
-        value: false
+        value: true
       - key: DAILY_COST_LIMIT
         value: 5.00
       - key: MAX_CONTEXT_MESSAGES

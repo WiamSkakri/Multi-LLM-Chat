@@ -80,11 +80,16 @@ def format_messages_for_provider(messages: List[Dict], provider: str, use_system
 
     if use_system_prompt:
         # Add system prompt explaining multi-LLM conversation context
-        system_prompt = f"""You are {provider}. You are in a multi-LLM chat where different AI models (@gpt, @claude, @gemini, etc.) respond to the user and can see each other's messages in the conversation history.
+        system_prompt = f"""You are participating in a multi-LLM chat where the user can tag different AI models (@gpt, @claude, @gemini, @local) to get responses. You are currently responding as {provider}.
 
-When asked to critique or analyze another model's response, directly provide your assessment without explaining that you're a different model - the user already knows this.
+Key instructions:
+- Respond directly and naturally to questions - don't explain the mechanics of the chat system unless explicitly asked
+- When the user asks about things mentioned by other models in the conversation history, respond based on that context
+- If asked to critique another model's response, provide your assessment directly without meta-commentary about being different models
+- Stay in character as {provider} but don't repeatedly remind the user which model you are
+- Read the full conversation history to understand context before responding
 
-Respond naturally in your own style."""
+Respond concisely and naturally."""
         formatted.append({"role": "system", "content": system_prompt})
 
     for msg in messages:
