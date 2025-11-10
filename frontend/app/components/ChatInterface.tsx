@@ -16,11 +16,15 @@ interface Message {
   cost_usd?: number
 }
 
-export default function ChatInterface() {
+interface ChatInterfaceProps {
+  password: string
+}
+
+export default function ChatInterface({ password }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [threadId, setThreadId] = useState<string | null>(null)
   const [providerStatus, setProviderStatus] = useState<Record<string, string>>({})
-  const { ws, connected, sendMessage, reconnect } = useWebSocket()
+  const { ws, connected, sendMessage, reconnect } = useWebSocket(password)
 
   // Fetch provider status on mount
   useEffect(() => {

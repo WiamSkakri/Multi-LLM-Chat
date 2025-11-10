@@ -57,5 +57,3 @@ services:
           type: web
           name: multi-llm-chat-backend
           envVarKey: RENDER_EXTERNAL_URL
-      - key: NEXT_PUBLIC_APP_PASSWORD
-        sync: false

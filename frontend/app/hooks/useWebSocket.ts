@@ -7,7 +7,7 @@ interface WebSocketMessage {
   [key: string]: any
 }
 
-export function useWebSocket() {
+export function useWebSocket(password: string) {
   const [ws, setWs] = useState<WebSocket | null>(null)
   const [connected, setConnected] = useState(false)
   const reconnectAttempts = useRef(0)
@@ -16,7 +16,6 @@ export function useWebSocket() {
 
   const connect = useCallback(() => {
     const wsUrl = process.env.NEXT_PUBLIC_API_URL || 'ws://localhost:8000/ws'
-    const password = process.env.NEXT_PUBLIC_APP_PASSWORD || ''
 
     const websocket = new WebSocket(wsUrl)
 
@@ -24,7 +23,7 @@ export function useWebSocket() {
       console.log('WebSocket connected')
       setConnected(true)
       reconnectAttempts.current = 0
-      
+
       // Send auth
       websocket.send(JSON.stringify({
         type: 'auth',
@@ -55,7 +54,7 @@ export function useWebSocket() {
     }
 
     setWs(websocket)
-  }, [])
+  }, [password])
 
   useEffect(() => {
     connect()
