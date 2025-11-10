@@ -121,8 +121,10 @@ export default function ChatInterface() {
       <div className="h-full flex flex-col items-center justify-center">
         <div className="w-full max-w-4xl mx-auto px-6">
           <header className="mb-8 text-center">
-            <h1 className="text-xl text-black dark:text-white">
-              Ask multiple LLMs your question and compare
+            <h1 className="text-4xl text-black dark:text-white">
+              ASK MULTIPLE LLMS YOUR QUESTION
+              <br />
+              AND COMPARE
             </h1>
           </header>
           <MessageInput onSend={handleSend} providerStatus={providerStatus} />
